@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['non-prod', 'prod'],
+            description: 'Select the environment to deploy'
+        )
+    }
+
+    stages {
+        stage('Push config to Sandbox') {
+            when {
+                expression { params.ENVIRONMENT == 'non-prod' }
+            }
+            steps {
+                echo "Pushing configuration to Sandbox environment..."
+                // Add your sandbox deployment commands here
+                // Example: sh 'your-deployment-script.sh sandbox'
+            }
+        }
+
+        stage('Push config to Dev') {
+            when {
+                expression { params.ENVIRONMENT == 'non-prod' }
+            }
+            steps {
+                echo "Pushing configuration to Dev environment..."
+                // Add your dev deployment commands here
+                // Example: sh 'your-deployment-script.sh dev'
+            }
+        }
+
+        stage('Push config to Staging') {
+            when {
+                expression { params.ENVIRONMENT == 'non-prod' }
+            }
+            steps {
+                echo "Pushing configuration to Staging environment..."
+                // Add your staging deployment commands here
+                // Example: sh 'your-deployment-script.sh staging'
+            }
+        }
+
+        stage('Push config to Prod') {
+            when {
+                expression { params.ENVIRONMENT == 'prod' }
+            }
+            steps {
+                echo "Pushing configuration to Production environment..."
+                // Add your production deployment commands here
+                // Example: sh 'your-deployment-script.sh prod'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline completed successfully for ${params.ENVIRONMENT} environment"
+        }
+        failure {
+            echo "Pipeline failed for ${params.ENVIRONMENT} environment"
+        }
+    }
+}

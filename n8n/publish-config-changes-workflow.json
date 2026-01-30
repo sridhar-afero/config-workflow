@@ -1,0 +1,277 @@
+{
+  "name": "Publish Config Changes",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "17846341-fcdc-4839-b0dc-aa9ba822c93a",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1280,
+        112
+      ],
+      "id": "91459d27-0c4f-4926-9dfe-5707336f97da",
+      "name": "Webhook",
+      "webhookId": "17846341-fcdc-4839-b0dc-aa9ba822c93a"
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "10001",
+          "mode": "list",
+          "cachedResultName": "TestProject"
+        },
+        "issueType": {
+          "__rl": true,
+          "value": "10006",
+          "mode": "list",
+          "cachedResultName": "Task"
+        },
+        "summary": "Test",
+        "additionalFields": {
+          "assignee": {
+            "__rl": true,
+            "value": "557058:2e2ad429-eec0-40fb-b2da-36fad008cc95",
+            "mode": "list",
+            "cachedResultName": "sridhar avvari"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        112
+      ],
+      "id": "b264e06d-81b5-4e39-a4c9-783d389a7271",
+      "name": "Create an issue",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "0VW7p5JDytMsBQAg",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -624,
+        112
+      ],
+      "id": "d276de05-77f5-4987-9b47-3cfac9932b0e",
+      "name": "Wait",
+      "webhookId": "{{ $json.id }}"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "={{ $('Create an issue').item.json.key }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.jira",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        112
+      ],
+      "id": "90024f76-5aa3-4f48-a598-d42940977868",
+      "name": "Get Issue Status",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "0VW7p5JDytMsBQAg",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.fields.status.name }}",
+              "value2": "Done"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        112
+      ],
+      "id": "625c3776-bfee-49dd-8f19-7763a6a5485a",
+      "name": "Check if Done"
+    },
+    {
+      "parameters": {
+        "operation": "triggerParams",
+        "job": "Test",
+        "param": {
+          "params": [
+            {
+              "name": "=ENVIRONMENT",
+              "value": "prod"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.jenkins",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1120f8de-198b-465b-897e-843c6a16841f",
+      "name": "Trigger Jenkins Job",
+      "credentials": {
+        "jenkinsApi": {
+          "id": "BSR1rAnjfWG8Djyx",
+          "name": "Jenkins account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        0,
+        208
+      ],
+      "id": "b3da232c-3717-496a-ba25-0a60dafae947",
+      "name": "Not Done - Loop Back"
+    },
+    {
+      "parameters": {
+        "operation": "triggerParams",
+        "job": "Test",
+        "param": {
+          "params": [
+            {
+              "name": "=ENVIRONMENT",
+              "value": "non-prod"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.jenkins",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        112
+      ],
+      "id": "dd449660-b015-4f5d-aeb1-b9d09e34da90",
+      "name": "Publish changes to non-prod",
+      "credentials": {
+        "jenkinsApi": {
+          "id": "BSR1rAnjfWG8Djyx",
+          "name": "Jenkins account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Create an issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an issue": {
+      "main": [
+        [
+          {
+            "node": "Publish changes to non-prod",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Issue Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Issue Status": {
+      "main": [
+        [
+          {
+            "node": "Check if Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Done": {
+      "main": [
+        [
+          {
+            "node": "Trigger Jenkins Job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not Done - Loop Back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Not Done - Loop Back": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish changes to non-prod": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dfd54af8-418a-4ec8-a7ba-269745e84b86",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "777fa152c053ca5295b89f996ec516ec9e78bb2e26203f168c0a53fb5e1f2b6f"
+  },
+  "id": "efF4n0Z6rXtjttGc",
+  "tags": []
+}

@@ -1,0 +1,39 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# AI tools
+.qodo/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Helm
+*.tgz
+charts/
+Chart.lock
+
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# Secrets - never commit these
+*.pem
+*.key
+*secret*.yaml
+*secret*.yml
+credentials.json
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# Temp files
+tmp/
+temp/
+*.tmp
+*.bak
