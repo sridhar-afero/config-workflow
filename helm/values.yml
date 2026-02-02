@@ -1,7 +1,15 @@
-config:
-  database:
-    type: postgresdb
-    postgresdb:
-      host: n8n-postgresql
-      user: n8n
-      password: n8n123
+main:
+  config:
+    db:
+      type: postgresdb
+      postgresdb:
+        host: n8n-postgresql
+        port: 5432
+        database: n8n
+        user: n8n
+    api:
+      disabled: false
+  secret:
+    db:
+      postgresdb:
+        password: n8n123
